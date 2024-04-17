@@ -10,3 +10,4 @@ pretrained/
 test
 *.png
 *.out
+data_json

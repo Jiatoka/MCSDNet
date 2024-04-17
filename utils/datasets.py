@@ -5,7 +5,6 @@ sys.path.append(os.getcwd())
 import torch
 import torch.nn as nn
 from torch.utils.data import Dataset
-from data_json.split import split_test
 from pathlib import Path
 import json
 import os
@@ -21,8 +20,8 @@ def bulid_dataset(path,config):
     transform=Compose([Resize([config["height"],config["width"]]),ToTensor()])
     transform_target=Compose([Resize([config["height"],config["width"]]),ToTensor()])
     train_dataset=CloudDataset(frames=config['frames'],interval=config["interval"],path=path,mode='train',transform=transform,transform_target=transform_target,series=config["series"])
-    test_dataset=CloudDataset(frames=config['frames'],interval=config["interval"],path=path,mode='test',transform=transform,transform_target=transform_target,series=config["series"])
-    return train_dataset,test_dataset
+    valid_dataset=CloudDataset(frames=config['frames'],interval=config["interval"],path=path,mode='valid',transform=transform,transform_target=transform_target,series=config["series"])
+    return train_dataset,valid_dataset
 
 class CloudDataset(Dataset):
     '''

@@ -7,7 +7,7 @@ This repository is the official implementation of the paper:
 ## Install
 
 ## Dataset
-
+We create and publicly share a Mesoscale Convective System Detection dataset based on the captured images from FY-4A satellite. You can get the dataset [here](https://github.com/250HandsomeLiang/MCSRSI.git)!
 ## How to use
 
 ## Citation
