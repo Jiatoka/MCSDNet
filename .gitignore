@@ -1,0 +1,12 @@
+__pycache__
+test/
+model/
+.logs/
+tensorboard/
+settings.json
+login/
+*.pth
+pretrained/
+test
+*.png
+*.out
