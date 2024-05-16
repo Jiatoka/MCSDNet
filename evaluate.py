@@ -5,7 +5,6 @@ import torch
 import torch.nn as nn
 from utils.utils import PodFarCSI,miou
 import argparse
-from utils.datasets import CloudDataset
 from torch.utils.data import DataLoader
 from typing import Union
 from utils.datasets import bulid_dataset
@@ -19,7 +18,11 @@ import numpy as np
 valid_dataset=None
 test_dataset=None
 train_dataset=None
-
+import logging
+logging.basicConfig(level=logging.INFO,  
+                    format='%(asctime)s - %(levelname)s - %(message)s',  
+                    filename='./log/evaluate.log', # 日志文件名，如果没有这个参数，日志输出到console  
+                    filemode='w') # 文件写入模式，“w”会覆盖之前的日志，“a”会追加到之前的日志  
 def evaluate(model:nn.Module,loader,loss_fn,netname,loss_name,writer:Union[SummaryWriter,None]=None,series=False):
     metrics=PodFarCSI(gpu=device)
     with torch.no_grad():
@@ -47,6 +50,8 @@ def evaluate(model:nn.Module,loader,loss_fn,netname,loss_name,writer:Union[Summa
         print('POD:%.5f FAR:%.5f CSI:%.5f'%(pod,far,csi))
 
 if __name__=='__main__':
+    import time
+    start=time.time()
     # parse
     parse=argparse.ArgumentParser()
     parse.add_argument('-p','--path',type=str,help='model path')
@@ -79,8 +84,9 @@ if __name__=='__main__':
     model.load_state_dict(torch.load(args.path))
     loss_fn=nn.BCEWithLogitsLoss()
     test_loader=DataLoader(test_dataset,batch_size=3)
-
+    
     # evaluate
-    print('test dataset evaluate')
     evaluate(model,test_loader,loss_fn,args.name,'test',writer=writer,series=args.series)
+    end=time.time()
+    print(f"test finished:{end-start}s")
     writer.close()

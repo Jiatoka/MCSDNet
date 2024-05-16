@@ -8,6 +8,7 @@ from torch.utils.data import Dataset
 from pathlib import Path
 import json
 import os
+from data.split import split_test
 import sys
 from PIL import Image
 from torchvision.transforms import Compose,ToTensor
@@ -52,11 +53,15 @@ class CloudDataset(Dataset):
             self.transform_target=transform_target
         else:
             self.transform_target=Compose([ToTensor()])
+        
         # split the origin data into train,valid,test by month
-        if not os.path.exists(f'{path}/frame{frames}_interval{interval}.json'):
-            raise Exception(f'{path}/frame{frames}_interval{interval}.json not exists, please manually divide the dataset by using split_test in MCSRSI/split.py')
-        with open(f'{path}/frame{frames}_interval{interval}.json','r') as f:
+        split_test(frames=frames,timesteps=interval,path='./tmp',series=series)
+        with open('./tmp.json','r') as f:
             data=json.load(f)
+        # if not os.path.exists(f'{path}/frame{frames}_interval{interval}.json'):
+        #     raise Exception(f'{path}/frame{frames}_interval{interval}.json not exists, please manually divide the dataset by using split_test in MCSRSI/split.py')
+        # with open(f'{path}/frame{frames}_interval{interval}.json','r') as f:
+        #     data=json.load(f)
         self.data=[]
         for key in self.name:
             for t in data[key][mode]:

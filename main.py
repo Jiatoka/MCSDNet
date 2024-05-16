@@ -20,6 +20,7 @@ SEED=0
 import torch 
 if __name__=='__main__':
     set_random_seed(SEED)
+    os.environ['CUDA_VISIBLE_DEVICES'] = '1'
     # set environment
     os.environ['MASTER_ADDR']='localhost'
     os.environ['MASTER_PORT']='6788'

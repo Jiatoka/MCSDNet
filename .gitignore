@@ -9,4 +9,9 @@ login/
 pretrained/
 test
 *.out
-data_json
+# data
+*.log
+tmp.json
+compare
+test.*
+*.sh
