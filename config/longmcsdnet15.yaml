@@ -38,13 +38,13 @@ model:
       fuse: attn
       dilation: 3
       reduction: 16
-      timesteps: 6
+      timesteps: 12
       conv: mix
       spatio_attn: cbam
       temporal_attn: default
       groups: 6
       aggregation: concat
-      shape: [6,128,20,32]
+      shape: [12,128,20,32]
       temporal: True
       spatial: True
       mlp_layer: False
@@ -53,10 +53,10 @@ model:
       name: cloud
       width: 256
       height: 160
-      batch: 8
+      batch: 4
       series: True
-      interval: 30
-      frames: 6
+      interval: 15
+      frames: 12
       patch: None
       region: None
     trainer:

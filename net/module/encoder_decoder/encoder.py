@@ -93,6 +93,28 @@ class MultiScaleEncoder(nn.Module):
         encode_out[-1]=self.ppm_conv(encode_out[-1])
         encode_out[-1]=encode_out[-1]+self.aspp_block(encode_out[-1])
         return encode_out
+    def get_feature_maps(self,x:torch.Tensor):
+        # x:(tb,c,h,w)
+        # encoder
+        encode_out=[]
+        for i in range(len(self.encoder)):
+            x=self.encoder[i](x)
+            encode_out.append(x)
+            x=self.down_sample[i](x)
+        last_encoder=[]
+        for i in range(len(self.encoder)-1):
+            last_encoder.append(self.ppm[i](encode_out[i]))
+        last_encoder.append(encode_out[-1])
+        encode_out[-1]=torch.cat(last_encoder,dim=1)
+        encode_out[-1]=self.ppm_conv(encode_out[-1])
+
+        # multi scale feature maps
+        multi_scale_feature_maps=encode_out[-1]
+        # encoder feature maps
+        encoder_feature_maps=encode_out[:len(self.encoder)-1]
+        # align maps
+        align_maps=last_encoder[:]
+        return multi_scale_feature_maps,encoder_feature_maps,align_maps
     def init_weights(self):
         '''
         init_weights

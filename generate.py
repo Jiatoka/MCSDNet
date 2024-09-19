@@ -1,4 +1,7 @@
 # generate MCS detection result image
+import os
+import sys
+sys.path.append(os.getcwd())
 from torch import nn
 import torch
 import argparse
@@ -14,103 +17,77 @@ from utils.datasets import bulid_dataset,CloudDataset
 def writeGraph(origin:torch.Tensor,label:torch.Tensor,predict:torch.tensor,image_name:str):
     image_name=image_name.split('.')[0]
     # origin:(c,h,w)
-    # label:(c,h,w)
     # predict:(c,h,w)
-
-    # label
-    label[label > 0.5] = 1.0
-    label[label <= 0.5] = 0.0
-
     
     # predict 
     predict=torch.sigmoid(predict)
     predict[predict > 0.5] = 1.0
     predict[predict <= 0.5] = 0.0
-    
 
     # tensor to image
     toImage=ToPILImage()
     origin=toImage(origin)
-    label=toImage(label)
     predict=toImage(predict)
     if not os.path.exists(f"./image/origin"):
         os.makedirs(f"./image/origin")
-        os.makedirs(f"./image/label")
         os.makedirs(f"./image/monitor")
     image_name=image_name[0:12]
     origin.save(f"./image/origin/{image_name}.png")
-    label.save(f"./image/label/{image_name}.png")
     predict.save(f"./image/monitor/{image_name}.png")
 if __name__=='__main__':
     parse=argparse.ArgumentParser()
     device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     parse.add_argument('--path',type=str,help='the path of dataset')
-    parse.add_argument('--checkpoint',type=str,help='the checkpoint of MCSDNet')
+    parse.add_argument('--checkpoint',type=str,default='/data/Jiatoka/STCCD/model/SimUnet/20240402190353_MCSDNet_v1_f6_i30_e100_b8_50.pth')
+    parse.add_argument('--imageDir',type=str,default='/data/Jiatoka/MCSDNet/example',help="the input image sequence which aims to detect convective cloud")
     args=parse.parse_args()
-    config=load_config('./config/mcsdnet.yaml')
+
+    # create model
+    config=load_config('/data/Jiatoka/MCSDNet/config/mcsdnet.yaml')
     config=config['model']['MCSDNet']
-    data_config=config['dataset']
     model=build_model(config=config).to(device)
     model.load_state_dict(torch.load(args.checkpoint))
-    path=args.path
-    data_config['frames']=6
-    data_config['interval']=15
-    data_config['series']=True
-    data_config['batch']=1
-    train_dataset,test_dataset=bulid_dataset(path,config=data_config)
-    dataset=test_dataset
+
+    # generate images
     with torch.no_grad():
         model.eval()
-        # valid dataset
-        loader=DataLoader(dataset,batch_size=1)
-        for index,data in enumerate(loader):
-            x,y=data
-            
-            # (b,t,c,h,w) 
-            input_data=x.to(device)
-            label=y.to(device)
+
+        from pathlib import Path
+        image_name_list=os.listdir(args.imageDir)
+        image_name_list=sorted(image_name_list)
+        for i in range(len(image_name_list)-5):
+            # open image
+            image_names=image_name_list[i:i+6]
+            images=[]
+            for img in image_names:
+                img_path=os.path.join(args.imageDir,img)
+                from PIL import Image
+                data=Image.open(img_path)
+                data=data.convert('L')
+                transforms=Compose([Resize([160,256]),ToTensor()])
+                data=transforms(data)
+                images.append(data)
+            images=torch.stack(images)
+            images=images.unsqueeze(dim=0)
+            images=images.to(device)
+
+            # inference
             # (t,b,c,h,w)
-            input_data=input_data.permute(1,0,2,3,4)
-            label=label.permute(1,0,2,3,4)
-            
+            images=images.permute(1,0,2,3,4)
             # (t,b,c,h,w)
-            output=model(input_data)
+            output=model(images)
+            
             # reshape
-            # (t,c,h,w)
-            input_data=input_data.permute(1,0,2,3,4)
-            input_data=torch.unbind(input_data)[-1]
-            label=label.permute(1,0,2,3,4)
-            label=torch.unbind(label)[-1]
+            # (b,t,c,h,w)
+            images=images.permute(1,0,2,3,4)
+            images=torch.unbind(images)[-1]
             output=output.permute(1,0,2,3,4)
             output=torch.unbind(output)[-1]
+
+            # draw images
             for t in range(output.shape[0]):
-                writeGraph(origin=input_data[t],label=label[t],
-                predict=output[t],image_name=dataset.getName(index)[t])
-            print(f"=====image {dataset.getName(index)[0]} predict finished=====")
+                writeGraph(origin=images[t],label=None,
+                predict=output[t],image_name=image_names[t])
+            print(f"=====Image:{image_names[0]} detection finish=====")
+
         
-        # train dataset
-        loader=DataLoader(train_dataset,batch_size=1)
-        for index,data in enumerate(loader):
-            x,y=data
-            
-            # (b,t,c,h,w) 
-            input_data=x.to(device)
-            label=y.to(device)
-            # (t,b,c,h,w)
-            input_data=input_data.permute(1,0,2,3,4)
-            label=label.permute(1,0,2,3,4)
-            
-            # (t,b,c,h,w)
-            output=model(input_data)
-            # reshape
-            # (t,c,h,w)
-            input_data=input_data.permute(1,0,2,3,4)
-            input_data=torch.unbind(input_data)[-1]
-            label=label.permute(1,0,2,3,4)
-            label=torch.unbind(label)[-1]
-            output=output.permute(1,0,2,3,4)
-            output=torch.unbind(output)[-1]
-            for t in range(output.shape[0]):
-                writeGraph(origin=input_data[t],label=label[t],
-                predict=output[t],image_name=train_dataset.getName(index)[t])
-            print(f"=====image {train_dataset.getName(index)[0]} predict=====")

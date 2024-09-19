@@ -10,7 +10,7 @@ from net.module.encoder_decoder.encoder import *
 from net.module.encoder_decoder.bottom import *
 from net.module.encoder_decoder.decoder import *
 from typing import Union
-
+from utils.utils import printInfo
 class MCSDNet(nn.Module):
     def __init__(self,encoder,decoder,bottom:nn.Module):
         super().__init__()
@@ -34,8 +34,18 @@ class MCSDNet(nn.Module):
         encoder_layer_x[-1]=bottom_x
         # decoder
         out1=self.decoder(encoder_layer_x)
+        # printInfo()
         out1=rearrange(out1,'(t b) c h w -> t b c h w',t=T)
         return out1
+    def get_feature_maps(self,x):
+        # input x:(t,b,c,h,w)
+        T,B,C,H,W=x.shape
+        
+        # reshape
+        x=rearrange(x,'t b c h w -> (t b) c h w')
+        multi_scale_feature_maps,encoder_feature_maps,align_maps=self.encoder.get_feature_maps(x)
+
+        return multi_scale_feature_maps,encoder_feature_maps,align_maps
     def init_weights(self):
         '''
         init_weights

@@ -124,14 +124,14 @@ if __name__=='__main__':
     parse=argparse.ArgumentParser()
     parse.add_argument('--modelname',default='MCSDNet')
     args=parse.parse_args()
-    config=load_config("./config/mcsdnet.yaml")
+    config=load_config("./config/longmcsdnet15.yaml")
     config=config['model']['MCSDNet']
     data_config=config['dataset']
     path='/data/Jiatoka/dataset/CRSIs'
     train_dataset,test_dataset=bulid_dataset(path,config=data_config)
     print(train_dataset[0][0].shape)
     model=build_model(config=config).to(device)
-    data=torch.randn(6,8,1,160,256).to(device)
+    data=torch.randn(12,4,1,160,256).to(device)
     out=model(data)
     print(out.shape)
-    print(model)
+    # print(model)

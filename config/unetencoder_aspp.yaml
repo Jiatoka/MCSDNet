@@ -4,7 +4,7 @@ model:
     checkpoint_num: 50
     layer_channels: [64,128,256,512]
     encoder:
-      name: MultiScaleEncoder
+      name: UnetEncoder
       in_channels: 1
       batch: False
       group_norm: True

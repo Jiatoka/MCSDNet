@@ -55,7 +55,7 @@ model:
       height: 160
       batch: 8
       series: True
-      interval: 30
+      interval: 120
       frames: 6
       patch: None
       region: None

@@ -4,14 +4,14 @@ model:
     checkpoint_num: 50
     layer_channels: [64,128,256,512]
     encoder:
-      name: MultiScaleEncoder
+      name: UnetEncoder
       in_channels: 1
       batch: False
       group_norm: True
       interpolation: False
       residual: False
       num_groups: 4
-      aspp: True
+      aspp: False
     decoder:
       name: ConvDecoder
       out_layer_channels: [64,128,256,512]

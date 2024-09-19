@@ -20,7 +20,7 @@ SEED=0
 import torch 
 if __name__=='__main__':
     set_random_seed(SEED)
-    os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+    os.environ['CUDA_VISIBLE_DEVICES'] = '0'
     # set environment
     os.environ['MASTER_ADDR']='localhost'
     os.environ['MASTER_PORT']='6788'
@@ -35,7 +35,6 @@ if __name__=='__main__':
     parse.add_argument('--ckpt',default=None,type=str,help="checkpoint")
     parse.add_argument('--path',default='./data/MCSRSI',type=str,help="dataset path")
     args=parse.parse_args()
-    
     # load_config
     config=args.config
     config=load_config(args.config)
