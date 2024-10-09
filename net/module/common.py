@@ -160,7 +160,7 @@ class UpSample(nn.Module):
     def forward(self,x):
         out=self.up(x)
         if self.interpolation:
-            out=nn.functional.interpolate(out,scale_factor=(2,2),mode='bilinear')
+            out=nn.functional.interpolate(out,scale_factor=2,mode='bilinear')
             out=self.conv(out)
         return out
 

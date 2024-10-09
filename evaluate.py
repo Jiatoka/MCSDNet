@@ -19,6 +19,9 @@ valid_dataset=None
 test_dataset=None
 train_dataset=None
 import logging
+import os
+if not os.path.exists('./log'):
+    os.mkdir('log')
 logging.basicConfig(level=logging.INFO,  
                     format='%(asctime)s - %(levelname)s - %(message)s',  
                     filename='./log/evaluate.log', # 日志文件名，如果没有这个参数，日志输出到console  

@@ -128,8 +128,8 @@ if __name__=='__main__':
     config=config['model']['MCSDNet']
     data_config=config['dataset']
     path='/data/Jiatoka/dataset/CRSIs'
-    train_dataset,test_dataset=bulid_dataset(path,config=data_config)
-    print(train_dataset[0][0].shape)
+    # train_dataset,test_dataset=bulid_dataset(path,config=data_config)
+    # print(train_dataset[0][0].shape)
     model=build_model(config=config).to(device)
     data=torch.randn(12,4,1,160,256).to(device)
     out=model(data)

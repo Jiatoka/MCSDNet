@@ -20,6 +20,8 @@ class MCSDNet(nn.Module):
         self.init_weights()
     def forward(self,x):
         # input x:(t,b,c,h,w)
+        if len(x.shape)>5:
+            x=torch.unbind(x)[0]
         T,B,C,H,W=x.shape
         
         # reshape
