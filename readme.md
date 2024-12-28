@@ -24,9 +24,9 @@ evaluate
 ```
 python evaluate.py --path checkpoint.pth -n MCSDNet --dataset Your Dataset
 ```
-generate
+generate example
 ```
-python generate.py --checkpoint checkpoint.pth --path Your Dataset
+python generate.py --checkpoint checkpoint.pth --imageDir ./example
 ```
 ## Citation
 If you are interested in our repository and our paper, please cite the following paper:

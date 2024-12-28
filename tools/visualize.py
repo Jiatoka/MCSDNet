@@ -111,12 +111,12 @@ if __name__=='__main__':
     parse=argparse.ArgumentParser()
     device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     parse.add_argument('--path',type=str,help='the path of dataset')
-    parse.add_argument('--checkpoint',type=str,default='/data/Jiatoka/STCCD/model/SimUnet/20240402190353_MCSDNet_v1_f6_i30_e100_b8_50.pth')
-    parse.add_argument('--imageDir',type=str,default='/data/Jiatoka/MCSDNet/example',help="the input image sequence which aims to detect convective cloud")
+    parse.add_argument('--checkpoint',type=str,default='./result/20240402190353_MCSDNet_f6_i30_best.pth')
+    parse.add_argument('--imageDir',type=str,default='./example',help="the input image sequence which aims to detect convective cloud")
     args=parse.parse_args()
 
     # create model
-    config=load_config('/data/Jiatoka/MCSDNet/config/mcsdnet.yaml')
+    config=load_config('./mcsdnet.yaml')
     config=config['model']['MCSDNet']
     model=build_model(config=config).to(device)
     model.load_state_dict(torch.load(args.checkpoint))
